@@ -1,8 +1,5 @@
 {
     "compilerOptions": {
         "strict": true,
-    },
-    "include": [
-        "frontend/src"
-    ]
+    }
 }
