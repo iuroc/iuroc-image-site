@@ -18,6 +18,8 @@ npm install  # 安装依赖模块
 npm run dev  # 启动开发环境
 ```
 
+通过浏览器访问 `http://localhost:5173/` 访问前端站点。
+
 ## API 文档
 
 ### AjaxRes 类
