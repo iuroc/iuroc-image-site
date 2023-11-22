@@ -3,6 +3,6 @@
         "strict": true,
     },
     "include": [
-        "web/src"
+        "frontend/src"
     ]
 }
