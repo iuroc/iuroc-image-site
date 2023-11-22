@@ -4,10 +4,19 @@
 
 ## 快速开始
 
-1. 清理构建并安装：`mvn clean install`
-2. 安装 NPM 模块：`npm install`
-3. 启动前端开发环境：`npm run dev`
-4. 启动后端服务：`mvn spring-boot:run`
+```bash
+# 新建终端
+cd backend           # 后端部分
+mvn clean install    # 清除并安装
+mvn spring-boot:run  # 启动开发环境
+```
+
+```bash
+# 新建终端
+cd frontend  # 前端部分
+npm install  # 安装依赖模块
+npm run dev  # 启动开发环境
+```
 
 ## API 文档
 
