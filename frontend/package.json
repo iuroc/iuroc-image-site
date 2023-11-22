@@ -1,10 +1,11 @@
 {
     "scripts": {
-        "dev": "vite",
+        "dev": "concurrently \"mvn spring-boot:run\" \"npm run dev\"",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "concurrently \"mvn spring-boot:run\" \"npm run dev\""
     },
     "devDependencies": {
+        "concurrently": "^8.2.2",
         "vite": "^5.0.2"
     },
     "dependencies": {
