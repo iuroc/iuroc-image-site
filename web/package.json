@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "vite": "^5.0.2"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.2",
+    "vanjs-core": "^1.2.6"
+  }
+}
