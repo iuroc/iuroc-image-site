@@ -24,6 +24,26 @@ npm run dev  # 启动开发环境
 
 ## API 文档
 
+### HTTP 接口
+
+- Cookie 自动登录
+    - 请求地址：`/api/login`
+    - 请求方式：GET
+    - 请求表头
+        - `Cookie: token=xxx`
+- 表单手动登录
+    - 请求地址：`/api/login`
+    - 请求方式：POST
+    - 请求参数
+        - `username`：账号
+        - `password`：密码
+- 注册账号
+    - 请求地址：`/api/register`
+    - 请求方式：POST
+    - 请求参数
+        - `username`：账号
+        - `password`：密码
+
 ### AjaxRes 类
 
 ```java

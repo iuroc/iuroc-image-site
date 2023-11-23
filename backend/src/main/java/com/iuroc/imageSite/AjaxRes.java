@@ -21,17 +21,17 @@ class AjaxRes {
 
     public AjaxRes setSuccess(String message) {
         this.message = message;
-        this.code = AjaxRes.SUCCESS;
+        this.code = SUCCESS;
         return this;
     }
 
     public AjaxRes setSuccess() {
-        this.code = AjaxRes.SUCCESS;
+        this.code = SUCCESS;
         return this;
     }
 
     public AjaxRes setError() {
-        this.code = AjaxRes.ERROR;
+        this.code = ERROR;
         return this;
     }
 
@@ -60,14 +60,6 @@ class AjaxRes {
 
     public Object getData() {
         return data;
-    }
-
-    public static int getSuccess() {
-        return SUCCESS;
-    }
-
-    public static int getError() {
-        return ERROR;
     }
 
 }
