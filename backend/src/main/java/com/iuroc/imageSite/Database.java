@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import jakarta.servlet.http.Cookie;
+
 class Database {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:data.db");
@@ -61,7 +63,7 @@ class Database {
     }
 
     /** 创建新的 Token 记录 */
-    public static void createToken(Connection connection, String username) throws SQLException {
+    public static String createToken(Connection connection, String username) throws SQLException {
         // 最多允许同时 5 个登录
         int maxActiveToken = 5;
         String newToken = UUID.randomUUID().toString();
@@ -75,6 +77,7 @@ class Database {
             pStatement.setString(2, newToken);
             pStatement.executeUpdate();
         }
+        return newToken;
     }
 
     /** 获取用户当前的同时登录数量 */
