@@ -14,6 +14,30 @@ class AjaxRes {
         return this;
     }
 
+    public AjaxRes() {
+
+    }
+
+    public AjaxRes(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public AjaxRes(String message) {
+        this.message = message;
+    }
+
+    public AjaxRes(String message, Object data) {
+        this.message = message;
+        this.data = data;
+    }
+
+    public AjaxRes(int code, String message, Object data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
     /** 成功的响应码 */
     public static final int SUCCESS = 200;
     /** 失败的响应码 */

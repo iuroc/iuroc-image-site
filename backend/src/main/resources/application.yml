@@ -1,0 +1,4 @@
+# 设置根日志级别
+logging:
+  level:
+    root: OFF
