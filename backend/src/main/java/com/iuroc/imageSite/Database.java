@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import jakarta.servlet.http.Cookie;
-
 class Database {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:data.db");
