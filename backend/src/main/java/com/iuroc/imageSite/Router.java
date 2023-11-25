@@ -52,11 +52,21 @@ class Router {
                 String newToken = Database.createToken(connection, username);
                 Cookie cookie = new Cookie("token", newToken);
                 cookie.setMaxAge(180 * 24 * 60 * 60);
+                cookie.setHttpOnly(true);
                 response.addCookie(cookie);
                 return new AjaxRes().setSuccess("通过表单登录成功");
             }
             return new AjaxRes().setError("通过表单登录失败");
         }
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping("/api/logout")
+    private String logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return "redirect:/";
     }
 
     @CrossOrigin(origins = "*")
