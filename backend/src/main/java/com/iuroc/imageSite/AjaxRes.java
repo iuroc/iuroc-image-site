@@ -26,17 +26,16 @@ class AjaxRes {
     }
 
     public AjaxRes setSuccess() {
-        this.code = SUCCESS;
-        return this;
+        return setSuccess("成功");
     }
 
     public AjaxRes setError() {
-        this.code = ERROR;
-        return this;
+        return setError("失败");
     }
 
     public AjaxRes setError(String message) {
         this.message = message;
+        this.code = ERROR;
         return this;
     }
 

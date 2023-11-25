@@ -78,22 +78,26 @@ class Router {
     @GetMapping("/api/imageList")
     private AjaxRes imageList(HttpServletRequest request) {
         String path = Util.getStringParam(request, "path");
-        String[] allowPathList = new String[] { "4Kdujia", "4kdongman", "4kmeinv", "4kfengjing", "4kyouxi",
-                "4kyingshi",
-                "4kqiche", "4kdongwu", "4kzongjiao", "4kbeijing", "pingban", "shoujibizhi" };
-        if (Arrays.stream(allowPathList).noneMatch(item -> item.equals(path)))
-            return new AjaxRes().setError("输入的 path 错误");
+        Map<String, String> pathInfo = new HashMap<>();
+        String[] pathList = new String[] { "4Kdujia", "4kdongman", "4kmeinv", "4kfengjing", "4kyouxi",
+                "4kyingshi", "4kqiche", "4kdongwu", "4kzongjiao", "4kbeijing", "pingban", "shoujibizhi" };
+        String[] pathNameList = new String[] { "独家", "动漫", "美女", "风景", "游戏",
+                "影视", "汽车", "动物", "宗教", "背景", "平板壁纸", "手机壁纸" };
+        for (int i = 0; i < pathList.length; i++)
+            pathInfo.put(pathList[i], pathNameList[i]);
+        Map<String, Object> data = new HashMap<>();
+        data.put("pathInfo", pathInfo);
+        data.put("baseUrl", baseUrl);
+        if (Arrays.stream(pathList).noneMatch(item -> item.equals(path)))
+            return new AjaxRes().setError("输入的 path 错误").setData(data);
         int page = Util.getIntParam(request, "page", 1);
         String urlStr = String.format("%s/%s/%s", baseUrl, path,
                 page <= 1 ? "" : String.format("index_%d.html", page));
         String source = Util.getSource(urlStr, "gbk");
         List<Map<String, String>> list = parseImageList(source);
         int totalPage = parseTotalPage(source);
-        Map<String, Object> data = new HashMap<>();
         data.put("list", list);
         data.put("totalPage", totalPage);
-        data.put("allowPathList", allowPathList);
-        data.put("baseUrl", baseUrl);
         return new AjaxRes().setSuccess("获取成功")
                 .setData(data);
     }
