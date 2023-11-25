@@ -21,14 +21,15 @@ import java.util.regex.Pattern;
 @SpringBootApplication
 @RestController
 class Router {
+    static final String crossOrigin = "http://localhost:5173";
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @GetMapping("/")
     private String index() {
         return "<a href=\"https://github.com/iuroc/iuroc-image-site\">Github</a>";
     }
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @GetMapping("/api/login")
     private AjaxRes cookieLogin(HttpServletRequest request) throws SQLException {
         try (Connection connection = Database.getConnection()) {
@@ -40,7 +41,7 @@ class Router {
         }
     }
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @PostMapping("/api/login")
     private AjaxRes formLogin(HttpServletRequest request, HttpServletResponse response) throws SQLException {
         try (Connection connection = Database.getConnection()) {
@@ -53,6 +54,7 @@ class Router {
                 Cookie cookie = new Cookie("token", newToken);
                 cookie.setMaxAge(180 * 24 * 60 * 60);
                 cookie.setHttpOnly(true);
+                cookie.setPath("/");
                 response.addCookie(cookie);
                 return new AjaxRes().setSuccess("通过表单登录成功");
             }
@@ -60,7 +62,7 @@ class Router {
         }
     }
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @GetMapping("/api/logout")
     private String logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("token", null);
@@ -69,7 +71,7 @@ class Router {
         return "redirect:/";
     }
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @PostMapping("/api/register")
     private AjaxRes register(HttpServletRequest request) throws SQLException {
         try (Connection connection = Database.getConnection()) {
@@ -84,7 +86,7 @@ class Router {
         }
     }
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @GetMapping("/api/imageList")
     private AjaxRes imageList(HttpServletRequest request) {
         String path = Util.getStringParam(request, "path");
@@ -112,7 +114,7 @@ class Router {
                 .setData(data);
     }
 
-    @CrossOrigin(origins = "*")
+    @CrossOrigin(origins = crossOrigin, allowCredentials = "true")
     @GetMapping("/api/imageInfo")
     private AjaxRes imageInfo(HttpServletRequest request) {
         String href = Util.getStringParam(request, "href");
