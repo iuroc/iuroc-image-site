@@ -116,7 +116,8 @@ class Router {
         Pattern pattern = Pattern.compile("<h1>(.*?)</h1>.*?<div class=\"photo-pic\">.*?<img src=\"([^\\\"]+)",
                 Pattern.DOTALL);
         Matcher matcher = pattern.matcher(source);
-        matcher.find();
+        if (!matcher.find())
+            return data;
         String imageUrl = matcher.group(2);
         String title = matcher.group(1);
         data.put("imageUrl", imageUrl);
@@ -148,7 +149,8 @@ class Router {
     private int parseTotalPage(String source) {
         Pattern pattern = Pattern.compile("<div class=\"page\">(.*?)</div>", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(source);
-        matcher.find();
+        if (!matcher.find())
+            return 0;
         String divTagSource = matcher.group(1);
         Pattern pattern2 = Pattern.compile("<a.*?>(\\d+)</a>");
         Matcher matcher2 = pattern2.matcher(divTagSource);
