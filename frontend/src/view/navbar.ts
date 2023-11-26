@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 import { apiConfig, siteInfo } from '../config'
-
+import { Popover } from 'bootstrap'
 const { a, button, div, li, nav, span, ul } = van.tags
 
 export const navLinks = {
@@ -12,8 +12,7 @@ export const navLinks = {
 }
 
 export const Navbar = () => {
-
-    return nav({ class: 'navbar navbar-expand-md bg-body-tertiary shadow-sm' },
+    const ele = nav({ class: 'navbar navbar-expand-sm bg-body-tertiary border-bottom border-2 sticky-top' },
         div({ class: 'container' },
             a({ class: 'navbar-brand', href: '#' }, siteInfo.name),
             button({
@@ -22,7 +21,7 @@ export const Navbar = () => {
                 'data-bs-target': '#navbarSupportedContent'
             }, span({ class: 'navbar-toggler-icon' })),
             div({ class: 'collapse navbar-collapse', id: 'navbarSupportedContent' },
-                ul({ class: 'navbar-nav me-auto mb-2 mb-md-0' },
+                ul({ class: 'navbar-nav me-auto mb-2 mb-sm-0' },
                     li({ class: 'nav-item' }, navLinks.home),
                     li({ class: 'nav-item' }, navLinks.star),
                     li({ class: 'nav-item' }, navLinks.about),
@@ -34,4 +33,7 @@ export const Navbar = () => {
             )
         )
     )
+    new Popover(ele)
+    return ele
 }
+

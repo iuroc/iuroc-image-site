@@ -1,5 +1,5 @@
 import { Router } from 'apee-router'
-import { navLinks } from './tag/navbar'
+import { navLinks } from './view/navbar'
 import { apiConfig } from './config'
 import { AjaxRes } from './util'
 
@@ -15,11 +15,11 @@ export const afterRouter = (router: Router) => {
     }
     window.addEventListener('hashchange', handle)
     handle()
-    handleLogin()
+    checkLogin()
 }
 
 
-const handleLogin = () => {
+const checkLogin = () => {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', apiConfig.login)
     xhr.send()
@@ -32,11 +32,13 @@ const handleLogin = () => {
     })
 }
 
+/** 已登录状态 */
 const handleHasLogin = () => {
     navLinks.login.classList.add('d-none')
     navLinks.logout.classList.remove('d-none')
 }
 
+/** 未登录状态 */
 const handleNotLogin = () => {
     navLinks.login.classList.remove('d-none')
     navLinks.logout.classList.add('d-none')

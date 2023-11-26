@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import van from 'vanjs-core'
 import { Router } from 'apee-router'
 import { afterRouter } from './afterRouter'
-import { App } from './tag/app'
+import { App } from './view/app'
 
 van.add(document.body, App())
 
