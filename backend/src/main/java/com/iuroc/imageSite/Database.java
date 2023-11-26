@@ -130,4 +130,10 @@ class Database {
         pStatement.setString(2, password);
         pStatement.executeUpdate();
     }
+
+    public static void removeToken(Connection connection, String token) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement("DELECT FROM \"token\" WHERE \"token\" = ?");
+        pStatement.setString(1, token);
+        pStatement.executeUpdate();
+    }
 }

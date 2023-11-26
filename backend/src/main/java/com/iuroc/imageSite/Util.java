@@ -13,11 +13,15 @@ import jakarta.servlet.http.HttpServletRequest;
 
 class Util {
     public static String getCookieValue(Cookie[] cookies, String name) {
+        return getCookieValue(cookies, name, "");
+    }
+
+    public static String getCookieValue(Cookie[] cookies, String name, String defaultValue) {
         if (cookies != null)
             for (Cookie cookie : cookies)
                 if (cookie.getName().equals(name))
                     return cookie.getValue();
-        return null;
+        return defaultValue;
     }
 
     /** 是否全部为 null 或空字符串 */

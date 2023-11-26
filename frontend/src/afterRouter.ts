@@ -15,28 +15,29 @@ export const afterRouter = (router: Router) => {
     }
     window.addEventListener('hashchange', handle)
     handle()
-
     handleLogin()
 }
 
 
 const handleLogin = () => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', apiConfig.login)
-    xhr.withCredentials = true
-    // xhr.send()
-    // xhr.addEventListener('readystatechange', () => {
-    //     if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-    //         const data = JSON.parse(xhr.responseText) as AjaxRes
-    //         if (data.code == 200) {
-    //             navLinks.login.classList.add('d-none')
-    //             navLinks.logout.classList.remove('d-none')
-    //         } else {
-    //             navLinks.login.classList.remove('d-none')
-    //             navLinks.logout.classList.add('d-none')
-    //         }
-    //     }
-    // })
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    xhr.send('username=iuroc&password=12345678')
+    xhr.open('GET', apiConfig.login)
+    xhr.send()
+    xhr.addEventListener('readystatechange', () => {
+        if (xhr.readyState == xhr.DONE && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText) as AjaxRes
+            if (data.code == 200) handleHasLogin()
+            else handleNotLogin()
+        }
+    })
+}
+
+const handleHasLogin = () => {
+    navLinks.login.classList.add('d-none')
+    navLinks.logout.classList.remove('d-none')
+}
+
+const handleNotLogin = () => {
+    navLinks.login.classList.remove('d-none')
+    navLinks.logout.classList.add('d-none')
 }

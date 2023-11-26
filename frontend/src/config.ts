@@ -2,7 +2,7 @@ export const siteInfo = {
     name: 'IURoc Image'
 }
 
-let apiBaseUrl = 'http://127.0.0.1:8080'
+let apiBaseUrl = ''
 
 export const apiConfig = {
     login: apiBaseUrl + '/api/login',
