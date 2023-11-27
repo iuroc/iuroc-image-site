@@ -130,6 +130,7 @@ const LoginPanel = () => {
                 oninput: event => handleInput(username, invalid.username, event, errorMessage),
                 onblur: checkRule.username
             }),
+            div({ class: 'invalid-feedback' }, '账号不能为空')
         ),
         div({ class: 'mb-3' },
             input({
@@ -140,6 +141,7 @@ const LoginPanel = () => {
                 oninput: event => handleInput(password, invalid.password, event, errorMessage),
                 onblur: checkRule.password
             }),
+            div({ class: 'invalid-feedback' }, '密码不能为空')
         ),
         div({ class: 'row mb-3' },
             div({ class: 'col' }, button({
@@ -160,6 +162,13 @@ const LoginPanel = () => {
     )
 }
 
+const allTrue = (list: boolean[]) => {
+    for (let i = 0; i < list.length; i++)
+        if (list[i] == false)
+            return false
+    return true
+}
+
 const RegisterPanel = () => {
     const username = van.state('')
     const password = van.state('')
@@ -168,26 +177,8 @@ const RegisterPanel = () => {
     const errorMessage = van.state('')
     const repeatMessage = van.state('')
     const clickRegister = () => {
-        let check = true
-        if (username.val.match((/^\s*$/))) {
-            invalid.username.val = true
-            check = false
-        }
-        if (password.val.match((/^\s*$/))) {
-            invalid.password.val = true
-            check = false
-        }
-        if (passwordRepeat.val.match((/^\s*$/))) {
-            invalid.passwordRepeat.val = true
-            repeatMessage.val = ''
-            check = false
-        }
-        if (password.val.trim() != '' && passwordRepeat.val != password.val) {
-            invalid.passwordRepeat.val = true
-            repeatMessage.val = '两次输入的密码不一致'
-            check = false
-        }
-        if (!check) return
+        if (!allTrue([checkRule.username(), checkRule.password(), checkRule.passwordRepeat()])) return
+        alert(123)
     }
     const clearForm = () => {
         username.val = ''
