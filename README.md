@@ -6,19 +6,27 @@
 
 > 注意启动路径，按顺序执行代码
 
-```bash
-# 新建终端
-cd backend           # 后端部分
-mvn clean install    # 清除并安装
-mvn spring-boot:run  # 启动开发环境
-```
+- 开发环境配置完成后
+    ```bash
+    # 环境配置完成后，快速启动开发环境
+    npm run dev1
+    npm run dev2
+    ```
 
-```bash
-# 新建终端
-cd frontend  # 前端部分
-npm install  # 安装依赖模块
-npm run dev  # 启动开发环境
-```
+- 未配置开发环境
+    ```bash
+    # 新建终端
+    cd backend           # 后端部分
+    mvn clean install    # 清除并安装
+    mvn spring-boot:run  # 启动开发环境
+    ```
+
+    ```bash
+    # 新建终端
+    cd frontend  # 前端部分
+    npm install  # 安装依赖模块
+    npm run dev  # 启动开发环境
+    ```
 
 通过浏览器访问 `http://localhost:5173/` 访问前端站点。
 
