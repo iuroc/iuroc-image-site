@@ -89,10 +89,7 @@ const LoginPanel = () => {
         },
     }
     const clickLogin = () => {
-        let check = true
-        check = checkRule.username()
-        check = checkRule.password()
-        if (!check) return
+        if (!allTrue([checkRule.username(), checkRule.password()])) return
         const xhr = new XMLHttpRequest()
         xhr.open('POST', apiConfig.login)
         const params = new URLSearchParams()
@@ -178,7 +175,8 @@ const RegisterPanel = () => {
     const repeatMessage = van.state('')
     const clickRegister = () => {
         if (!allTrue([checkRule.username(), checkRule.password(), checkRule.passwordRepeat()])) return
-        alert(123)
+        // const xhr = new XMLHttpRequest()
+        // xhr.open('GET', '/api/imageList')
     }
     const clearForm = () => {
         username.val = ''
