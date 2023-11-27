@@ -3,6 +3,9 @@ import image0 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_0.png'
 import image1 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_1.png'
 import image2 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_2.png'
 import image3 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_3.png'
+import { apiConfig } from '../config'
+import { AjaxRes } from '../util'
+import { handleHasLogin } from '../afterRouter'
 
 const { a, button, div, img, input } = van.tags
 
@@ -35,6 +38,25 @@ const makeImageSrc = () => {
 export const LoginPanel = () => {
     const username = van.state('')
     const password = van.state('')
+
+    const clickLogin = () => {
+        if (username.val.match(/^\s*$/) || password.val.match(/^\s*$/))
+            return alert('账号和密码不能为空')
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', apiConfig.login)
+        const params = new URLSearchParams()
+        params.append('username', username.val)
+        params.append('password', password.val)
+        xhr.send(params)
+        xhr.addEventListener('readystatechange', () => {
+            if (xhr.readyState == xhr.DONE && xhr.status == 200) {
+                const data = JSON.parse(xhr.responseText) as AjaxRes
+                if (data.code == 200) return location.reload()
+                alert(data.message)
+            }
+        })
+    }
+
     return div({ class: 'h-100 d-flex flex-column justify-content-center' },
         div({ class: 'fs-3 mb-3' }, '用户登录'),
         div({ class: 'mb-3' },
@@ -64,17 +86,21 @@ export const LoginPanel = () => {
                     password.val = ''
                 }
             }, '清空')),
-            div({ class: 'col' }, button({ class: 'btn btn-success w-100' }, '登录')),
+            div({ class: 'col' },
+                button({ class: 'btn btn-success w-100', onclick: clickLogin }, '登录')
+            ),
         ),
         div({ class: 'text-center' },
             a({
-                href: '#/login', onclick() {
+                role: 'button', class: 'link-primary', onclick() {
                     loginPanel.classList.add('d-none')
                     registerPanel.classList.remove('d-none')
                 }
             }, '没有账号？点击注册')
         )
     )
+
+
 }
 
 export const RegisterPanel = () => {
@@ -122,7 +148,7 @@ export const RegisterPanel = () => {
         ),
         div({ class: 'text-center' },
             a({
-                href: '#/login', onclick() {
+                role: 'button', class: 'link-primary', onclick() {
                     loginPanel.classList.remove('d-none')
                     registerPanel.classList.add('d-none')
                 }

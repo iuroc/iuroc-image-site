@@ -132,7 +132,7 @@ class Database {
     }
 
     public static void removeToken(Connection connection, String token) throws SQLException {
-        PreparedStatement pStatement = connection.prepareStatement("DELECT FROM \"token\" WHERE \"token\" = ?");
+        PreparedStatement pStatement = connection.prepareStatement("DELETE FROM \"token\" WHERE \"token\" = ?");
         pStatement.setString(1, token);
         pStatement.executeUpdate();
     }

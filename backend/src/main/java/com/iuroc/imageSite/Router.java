@@ -105,8 +105,8 @@ class Router {
         String urlStr = String.format("%s/%s/%s", baseUrl, path,
                 page <= 1 ? "" : String.format("index_%d.html", page));
         String source = Util.getSource(urlStr, "gbk");
-        List<Map<String, String>> list = parseImageList(source);
-        int totalPage = parseTotalPage(source);
+        List<Map<String, String>> list = RouterMixin.parseImageList(source);
+        int totalPage = RouterMixin.parseTotalPage(source);
         data.put("list", list);
         data.put("totalPage", totalPage);
         return new AjaxRes().setSuccess("获取成功")
@@ -120,27 +120,32 @@ class Router {
             return new AjaxRes().setError("请输入参数 href");
         String url = baseUrl + href;
         String source = Util.getSource(url, "gbk");
-        Map<String, Object> data = parseImageInfo(source);
+        Map<String, Object> data = RouterMixin.parseImageInfo(source);
         data.put("baseUrl", baseUrl);
         return new AjaxRes().setSuccess("获取成功").setData(data);
     }
 
-    private Map<String, Object> parseImageInfo(String source) {
-        Map<String, Object> data = new HashMap<>();
-        Pattern pattern = Pattern.compile("<h1>(.*?)</h1>.*?<div class=\"photo-pic\">.*?<img src=\"([^\\\"]+)",
-                Pattern.DOTALL);
+    private String baseUrl = "https://pic.netbian.com";
+}
+
+class RouterMixin {
+    /** 获取总页码 */
+    public static int parseTotalPage(String source) {
+        Pattern pattern = Pattern.compile("<div class=\"page\">(.*?)</div>", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(source);
         if (!matcher.find())
-            return data;
-        String imageUrl = matcher.group(2);
-        String title = matcher.group(1);
-        data.put("imageUrl", imageUrl);
-        data.put("title", title);
-        return data;
+            return 0;
+        String divTagSource = matcher.group(1);
+        Pattern pattern2 = Pattern.compile("<a.*?>(\\d+)</a>");
+        Matcher matcher2 = pattern2.matcher(divTagSource);
+        String lastStr = "";
+        while (matcher2.find())
+            lastStr = matcher2.group(1);
+        return Integer.valueOf(lastStr);
     }
 
     /** 获取图片列表 */
-    private List<Map<String, String>> parseImageList(String source) {
+    public static List<Map<String, String>> parseImageList(String source) {
         Pattern pattern = Pattern.compile("<div class=\"wrap clearfix\">.*?<ul.*?class=\".*?clearfix.*?\">(.*?)</ul>",
                 Pattern.DOTALL);
         Matcher matcher = pattern.matcher(source);
@@ -159,20 +164,17 @@ class Router {
         return outList;
     }
 
-    /** 获取总页码 */
-    private int parseTotalPage(String source) {
-        Pattern pattern = Pattern.compile("<div class=\"page\">(.*?)</div>", Pattern.DOTALL);
+    public static Map<String, Object> parseImageInfo(String source) {
+        Map<String, Object> data = new HashMap<>();
+        Pattern pattern = Pattern.compile("<h1>(.*?)</h1>.*?<div class=\"photo-pic\">.*?<img src=\"([^\\\"]+)",
+                Pattern.DOTALL);
         Matcher matcher = pattern.matcher(source);
         if (!matcher.find())
-            return 0;
-        String divTagSource = matcher.group(1);
-        Pattern pattern2 = Pattern.compile("<a.*?>(\\d+)</a>");
-        Matcher matcher2 = pattern2.matcher(divTagSource);
-        String lastStr = "";
-        while (matcher2.find())
-            lastStr = matcher2.group(1);
-        return Integer.valueOf(lastStr);
+            return data;
+        String imageUrl = matcher.group(2);
+        String title = matcher.group(1);
+        data.put("imageUrl", imageUrl);
+        data.put("title", title);
+        return data;
     }
-
-    private String baseUrl = "https://pic.netbian.com";
 }
