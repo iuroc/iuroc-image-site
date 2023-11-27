@@ -51,9 +51,11 @@ class Router {
                 cookie.setHttpOnly(true);
                 cookie.setPath("/");
                 response.addCookie(cookie);
-                return new AjaxRes().setSuccess("通过表单登录成功");
+                // 通过表单登录成功
+                return new AjaxRes().setSuccess("登录成功");
             }
-            return new AjaxRes().setError("通过表单登录失败");
+            // 通过表单登录失败
+            return new AjaxRes().setError("登录失败，账号或密码错误");
         }
     }
 

@@ -40,7 +40,7 @@ export const handleHasLogin = (router: Router) => {
 }
 
 /** 未登录状态 */
-const handleNotLogin = () => {
+export const handleNotLogin = () => {
     navLinks.login.classList.remove('d-none')
     navLinks.logout.classList.add('d-none')
 }

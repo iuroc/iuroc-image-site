@@ -2,9 +2,11 @@ import van from 'vanjs-core'
 import { apiConfig, siteInfo } from '../config'
 import { Popover } from 'bootstrap'
 import { AjaxRes } from '../util'
+import { handleNotLogin } from '../afterRouter'
 const { a, button, div, li, nav, span, ul } = van.tags
 
 const logout = () => {
+    if (!confirm('确定要退出登录吗？')) return
     const xhr = new XMLHttpRequest()
     xhr.open('GET', apiConfig.logout)
     xhr.send()
@@ -12,7 +14,8 @@ const logout = () => {
         if (xhr.readyState == xhr.DONE && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText) as AjaxRes
             if (data.code == 200) {
-                location.reload()
+                location.href = '#/login'
+                handleNotLogin()
                 return
             }
             alert(data.message)

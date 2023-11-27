@@ -5,6 +5,7 @@
         "preview": "vite preview"
     },
     "devDependencies": {
+        "@types/bootstrap": "^5.2.10",
         "vite": "^5.0.2"
     },
     "dependencies": {
