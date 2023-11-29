@@ -2,3 +2,4 @@ backend/target/
 node_modules/
 .vite/
 package-lock.json
+dist/
