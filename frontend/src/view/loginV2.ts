@@ -4,6 +4,7 @@ import image1 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_1.png'
 import image2 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_2.png'
 import image3 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_3.png'
 import { Carousel } from 'bootstrap'
+import { classWithHide } from '../util'
 
 const { button, div, img } = van.tags
 
@@ -38,19 +39,11 @@ export const Login = () => {
 }
 
 const LoginPanel = () => {
-    const data = {
-        title: van.state('用户登录')
-    }
     return div(
-        div({ class: 'fs-3 mb-3' }, data.title),
+        div({ class: 'fs-3 mb-3' }, '用户登录'),
         div({ class: 'mb-3 fw-light' },
             '登录后即刻畅享高清美景，轻松收藏心动之作，尽情发现独特美好，定格喜爱瞬间。'
         ),
-        button({
-            onclick: () => {
-                data.title.val = 'Good'
-            }
-        }, '点我')
     )
 }
 
