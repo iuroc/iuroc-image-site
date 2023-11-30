@@ -38,12 +38,28 @@ export const Login = () => {
     )
 }
 
+const writeText = (text: string, time: number = 100) => {
+    let index = 0
+    setInterval(() => {
+        if (index == text.length) {
+            element.innerHTML = ''
+            index = 0
+        } else van.add(element, text[index++])
+    }, time)
+    const element = div()
+    return element
+}
+
 const LoginPanel = () => {
+    const errorMessage = van.state('1234')
+    const hide = van.derive(() => errorMessage.val == '')
     return div(
         div({ class: 'fs-3 mb-3' }, '用户登录'),
         div({ class: 'mb-3 fw-light' },
             '登录后即刻畅享高清美景，轻松收藏心动之作，尽情发现独特美好，定格喜爱瞬间。'
         ),
+        div({ ...classWithHide(hide, 'mb-3') }, errorMessage),
+        writeText('登录后即刻畅享高清美景，轻松收藏心动之作，尽情发现独特美好，定格喜爱瞬间。', 200)
     )
 }
 
