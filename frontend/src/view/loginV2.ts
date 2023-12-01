@@ -1,12 +1,12 @@
-import van, { State } from 'vanjs-core'
+import van, { PropValueOrDerived, Props, State, TagFunc } from 'vanjs-core'
 import image0 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_0.png'
 import image1 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_1.png'
 import image2 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_2.png'
 import image3 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_3.png'
 import { Carousel } from 'bootstrap'
-import { classWithHide } from '../util'
+import { FormConfig, MyInput, myOnBlur, myOnInput } from './input'
 
-const { button, div, img } = van.tags
+const { button, div, img, input } = van.tags
 
 export const Login = () => {
     return div({ 'data-route': 'login' },
@@ -38,28 +38,62 @@ export const Login = () => {
     )
 }
 
-const writeText = (text: string, time: number = 100) => {
-    let index = 0
-    setInterval(() => {
-        if (index == text.length) {
-            element.innerHTML = ''
-            index = 0
-        } else van.add(element, text[index++])
-    }, time)
-    const element = div()
-    return element
-}
-
 const LoginPanel = () => {
-    const errorMessage = van.state('1234')
-    const hide = van.derive(() => errorMessage.val == '')
+    const errorMessage = van.state('')
+    const formConfig: FormConfig = {
+        username: {
+            oninput(event) {
+                myOnInput(event, formConfig.username)
+            },
+            onblur() {
+                myOnBlur(formConfig.username)
+            },
+            value: van.state(''),
+            invalid: van.state(false),
+            invalidMessage: van.state('账号不能为空')
+        },
+        password: {
+            oninput(event) {
+                myOnInput(event, formConfig.password)
+            },
+            onblur() {
+                myOnBlur(formConfig.password)
+            },
+            value: van.state(''),
+            invalid: van.state(false),
+            invalidMessage: van.state('密码不能为空'),
+        }
+    }
+
+    const username = formConfig.username.value as State<string>
+    const password = formConfig.password.value as State<string>
+
+    const clearForm = () => {
+        username.val = ''
+        password.val = ''
+    }
+
+    const clickLogin = () => {
+        if (username.val.match(/^\s*$/)) (formConfig.username.invalid as State<boolean>).val = true
+        if (password.val.match(/^\s*$/)) (formConfig.password.invalid as State<boolean>).val = true
+    }
+
     return div(
         div({ class: 'fs-3 mb-3' }, '用户登录'),
         div({ class: 'mb-3 fw-light' },
             '登录后即刻畅享高清美景，轻松收藏心动之作，尽情发现独特美好，定格喜爱瞬间。'
         ),
-        div({ ...classWithHide(hide, 'mb-3') }, errorMessage),
-        writeText('登录后即刻畅享高清美景，轻松收藏心动之作，尽情发现独特美好，定格喜爱瞬间。', 200)
+        div({ class: 'mb-3' }, errorMessage),
+        MyInput(formConfig.username),
+        MyInput(formConfig.password),
+        div({ class: 'row mb-3' },
+            div({ class: 'col' }, button({
+                class: 'btn btn-light border w-100', onclick: clearForm
+            }, '清空')),
+            div({ class: 'col' },
+                button({ class: 'btn btn-success w-100', onclick: clickLogin }, '登录')
+            ),
+        ),
     )
 }
 
