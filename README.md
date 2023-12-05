@@ -28,6 +28,10 @@
     npm run dev  # 启动开发环境
     ```
 
+- 下载解压图片资源
+    - [点击下载压缩包](https://github.com/iuroc/iuroc-image-site/releases/download/image/image.zip)
+    - 将压缩包内 `image` 目录解压到 `resources` 目录，形成类似 `resources/image/1.jpg` 的路径。
+
 通过浏览器访问 `http://localhost:5173/` 访问前端站点。
 
 ## API 文档

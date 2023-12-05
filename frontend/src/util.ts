@@ -1,9 +1,9 @@
 import { State } from "vanjs-core"
 
-export interface AjaxRes {
+export interface AjaxRes<Data = any> {
     code: 200 | 0,
     message: string,
-    data: any
+    data: Data
 }
 
 /**

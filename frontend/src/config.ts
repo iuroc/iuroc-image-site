@@ -9,5 +9,6 @@ export const apiConfig = {
     logout: apiBaseUrl + '/api/logout',
     register: apiBaseUrl + '/api/register',
     imageList: apiBaseUrl + '/api/imageList',
-    imageInfo: apiBaseUrl + '/api/imageInfo'
+    imageInfo: apiBaseUrl + '/api/imageInfo',
+    randomImage: apiBaseUrl + '/api/randomImage'
 }

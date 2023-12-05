@@ -147,9 +147,14 @@ class Router {
     @GetMapping("/api/randomImage")
     private AjaxRes randomImage() throws URISyntaxException {
         int length = RouterMixin.getFileCount("image");
-        int num = Util.random(1, length);
-        String filename = String.format("/image/%d.jpg", num);
-        return new AjaxRes().setSuccess("Good").setData(filename);
+        Map<String, Object> data = new HashMap<>();
+        String[] imageList = new String[8];
+        data.put("list", imageList);
+        for (int i = 0; i < 8; i++) {
+            imageList[i] = RouterMixin.makeImageSrc(length);
+        }
+        data.put("main", imageList[0]);
+        return new AjaxRes().setSuccess("Good").setData(data);
     }
 
     @GetMapping("/image/{imageName:.+}")
@@ -166,6 +171,11 @@ class Router {
 }
 
 class RouterMixin {
+
+    public static String makeImageSrc(int length) {
+        return String.format("/image/%d.jpg", Util.random(1, length));
+    }
+
     public static int getFileCount(String dirPath) throws URISyntaxException {
         ClassLoader classLoader = RouterMixin.class.getClassLoader();
         URL url = classLoader.getResource(dirPath);
