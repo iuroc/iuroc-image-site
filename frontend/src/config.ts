@@ -10,5 +10,6 @@ export const apiConfig = {
     register: apiBaseUrl + '/api/register',
     imageList: apiBaseUrl + '/api/imageList',
     imageInfo: apiBaseUrl + '/api/imageInfo',
-    randomImage: apiBaseUrl + '/api/randomImage'
+    randomImage: apiBaseUrl + '/api/randomImage',
+    addStar: apiBaseUrl + '/api/addStar'
 }

@@ -3,8 +3,7 @@ import { Navbar } from './navbar'
 import { Home } from './home'
 import { Star } from './star'
 import { About } from './about'
-import { Login } from './loginV2'
-import { Router } from 'apee-router'
+import { Login } from './login'
 
 const { div } = van.tags
 

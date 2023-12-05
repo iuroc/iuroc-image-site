@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -20,8 +19,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -145,16 +142,28 @@ class Router {
     }
 
     @GetMapping("/api/randomImage")
-    private AjaxRes randomImage() throws URISyntaxException {
-        int length = RouterMixin.getFileCount("image");
-        Map<String, Object> data = new HashMap<>();
-        String[] imageList = new String[8];
-        data.put("list", imageList);
-        for (int i = 0; i < 8; i++) {
-            imageList[i] = RouterMixin.makeImageSrc(length);
+    private AjaxRes randomImage(HttpServletRequest request) throws URISyntaxException, SQLException {
+        try (Connection connection = Database.getConnection()) {
+            Cookie[] cookies = request.getCookies();
+            String token = Util.getCookieValue(cookies, "token");
+            boolean hasLogin = Util.isAllEmpty(token) || !Database.checkToken(connection, token);
+            String username = hasLogin ? Database.getUsernameByToken(connection, token) : null;
+
+            int length = RouterMixin.getFileCount("image");
+            Map<String, Object> data = new HashMap<>();
+            List<Map<String, Object>> imageList = new ArrayList<>();
+            data.put("list", imageList);
+            for (int i = 0; i < 8; i++) {
+                String src = RouterMixin.makeImageSrc(length);
+                boolean hasStar = hasLogin ? Database.isStarExists(connection, username, src) : false;
+                Map<String, Object> item = new HashMap<>();
+                item.put("src", src);
+                item.put("hasStar", hasStar);
+                imageList.add(item);
+            }
+            data.put("main", imageList.get(0));
+            return new AjaxRes().setSuccess("Good").setData(data);
         }
-        data.put("main", imageList[0]);
-        return new AjaxRes().setSuccess("Good").setData(data);
     }
 
     @GetMapping("/image/{imageName:.+}")
@@ -164,6 +173,21 @@ class Router {
             return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resource);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/api/addStar")
+    public AjaxRes addStar(HttpServletRequest request) throws SQLException {
+        try (Connection connection = Database.getConnection()) {
+            Cookie[] cookies = request.getCookies();
+            String token = Util.getCookieValue(cookies, "token");
+            String imageSrc = Util.getStringParam(request, "imageSrc");
+            if (imageSrc.equals(""))
+                return new AjaxRes().setError("参数 imageSrc 不能为空");
+            if (Util.isAllEmpty(token) || !Database.checkToken(connection, token))
+                return new AjaxRes().setError("请登录后执行该操作");
+            String username = Database.getUsernameByToken(connection, token);
+            return Database.addStar(connection, username, imageSrc);
         }
     }
 

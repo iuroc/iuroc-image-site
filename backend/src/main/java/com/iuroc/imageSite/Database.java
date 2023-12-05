@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 class Database {
@@ -26,11 +28,17 @@ class Database {
 
     /** 校验 Token */
     public static boolean checkToken(Connection connection, String token) throws SQLException {
+        return getUsernameByToken(connection, token) != null;
+    }
+
+    public static String getUsernameByToken(Connection connection, String token) throws SQLException {
         PreparedStatement pStatement = connection
-                .prepareStatement("SELECT * FROM \"token\" WHERE \"token\" = ?");
+                .prepareStatement("SELECT \"username\" FROM \"token\" WHERE \"token\" = ?");
         pStatement.setString(1, token);
         ResultSet resultSet = pStatement.executeQuery();
-        return resultSet.next();
+        if (resultSet.next())
+            return resultSet.getString("username");
+        return null;
     }
 
     /**
@@ -54,6 +62,15 @@ class Database {
                     "id" INTEGER NOT NULL UNIQUE,
                     "username" TEXT NOT NULL,
                     "token" TEXT NOT NULL UNIQUE,
+                    "create_time" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY("id" AUTOINCREMENT)
+                )
+                """);
+        statement.execute("""
+                CREATE TABLE IF NOT EXISTS "star" (
+                    "id" INTEGER NOT NULL UNIQUE,
+                    "username" TEXT NOT NULL,
+                    "image_src" TEXT NOT NULL UNIQUE,
                     "create_time" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY("id" AUTOINCREMENT)
                 )
@@ -134,6 +151,47 @@ class Database {
     public static void removeToken(Connection connection, String token) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement("DELETE FROM \"token\" WHERE \"token\" = ?");
         pStatement.setString(1, token);
+        pStatement.executeUpdate();
+    }
+
+    /**
+     * 收藏图片
+     * 
+     * @param connection 数据库连接
+     * @param username   用户名
+     * @param imageSrc   图片地址
+     */
+    public static AjaxRes addStar(Connection connection, String username, String imageSrc) throws SQLException {
+        Map<String, Boolean> data = new HashMap<>();
+        if (isStarExists(connection, username, imageSrc)) {
+            removeStar(connection, username, imageSrc);
+            data.put("hasStar", false);
+            return new AjaxRes().setSuccess("取消收藏成功").setData(data);
+        } else {
+            PreparedStatement pStatement = connection
+                    .prepareStatement("INSERT INTO \"star\" (\"username\", \"image_src\") VALUES (?, ?)");
+            pStatement.setString(1, username);
+            pStatement.setString(2, imageSrc);
+            pStatement.executeUpdate();
+            data.put("hasStar", true);
+            return new AjaxRes().setSuccess("收藏成功").setData(data);
+        }
+    }
+
+    public static boolean isStarExists(Connection connection, String username, String imageSrc) throws SQLException {
+        PreparedStatement pStatement = connection
+                .prepareStatement("SELECT * FROM \"star\" WHERE \"username\" = ? AND \"image_src\" = ?");
+        pStatement.setString(1, username);
+        pStatement.setString(2, imageSrc);
+        ResultSet resultSet = pStatement.executeQuery();
+        return resultSet.next();
+    }
+
+    public static void removeStar(Connection connection, String username, String imageSrc) throws SQLException {
+        PreparedStatement pStatement = connection
+                .prepareStatement("DELETE FROM \"star\" WHERE \"username\" = ? AND \"image_src\" = ?");
+        pStatement.setString(1, username);
+        pStatement.setString(2, imageSrc);
         pStatement.executeUpdate();
     }
 }
