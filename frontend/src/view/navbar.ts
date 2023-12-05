@@ -2,7 +2,7 @@ import van from 'vanjs-core'
 import { apiConfig, siteInfo } from '../config'
 import { Popover } from 'bootstrap'
 import { AjaxRes } from '../util'
-import { handleNotLogin } from '../afterRouter'
+import { handleNotLogin } from './login'
 const { a, button, div, li, nav, span, ul } = van.tags
 
 const logout = () => {

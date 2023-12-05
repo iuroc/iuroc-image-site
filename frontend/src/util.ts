@@ -1,4 +1,5 @@
 import { State } from "vanjs-core"
+import { apiConfig } from "./config"
 
 export interface AjaxRes<Data = any> {
     code: 200 | 0,
@@ -21,3 +22,4 @@ export const classWithHide = (state: State<boolean>, baseClass: string = '') => 
 export const getNowRouteName = () => {
     return location.hash == '' ? 'home' : location.hash.split('/')[1]
 }
+

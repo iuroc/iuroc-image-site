@@ -11,5 +11,6 @@ export const apiConfig = {
     imageList: apiBaseUrl + '/api/imageList',
     imageInfo: apiBaseUrl + '/api/imageInfo',
     randomImage: apiBaseUrl + '/api/randomImage',
-    addStar: apiBaseUrl + '/api/addStar'
+    addStar: apiBaseUrl + '/api/addStar',
+    starList: apiBaseUrl + '/api/starList'
 }

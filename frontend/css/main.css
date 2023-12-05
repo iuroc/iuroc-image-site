@@ -1,0 +1,7 @@
+.starRouteImage:hover div {
+    display: block;
+}
+
+.starRouteImage div {
+    display: none;
+}

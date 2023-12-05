@@ -5,8 +5,8 @@ import image2 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_2-min.png'
 import image3 from '../../img/4e4e70004a6b4db2a3f5d383149d934a_3-min.png'
 import { Carousel } from 'bootstrap'
 import { apiConfig } from '../config'
-import { AjaxRes } from '../util'
-import { handleHasLogin, handleNotLogin } from '../afterRouter'
+import { AjaxRes, getNowRouteName } from '../util'
+import { navLinks } from './navbar'
 
 const { a, button, div, img, input } = van.tags
 
@@ -330,3 +330,35 @@ const MyInput = (config: {
         div({ class: 'invalid-feedback' }, config.invalidMessage)
     )
 }
+
+
+export const checkLogin = () => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', apiConfig.login)
+    xhr.send()
+    xhr.addEventListener('readystatechange', () => {
+        if (xhr.readyState == xhr.DONE && xhr.status == 200) {
+            const data = JSON.parse(xhr.responseText) as AjaxRes
+            if (data.code == 200) handleHasLogin()
+            else handleNotLogin()
+        }
+    })
+}
+
+
+/** 已登录状态 */
+export const handleHasLogin = () => {
+    userLogin = true
+    navLinks.login.classList.add('d-none')
+    navLinks.logout.classList.remove('d-none')
+    if (getNowRouteName() == 'login') location.hash = ''
+}
+
+/** 未登录状态 */
+export const handleNotLogin = () => {
+    userLogin = false
+    navLinks.login.classList.remove('d-none')
+    navLinks.logout.classList.add('d-none')
+}
+
+export let userLogin = false

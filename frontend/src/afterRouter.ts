@@ -1,7 +1,6 @@
 import { Router } from 'apee-router'
 import { navLinks } from './view/navbar'
-import { apiConfig } from './config'
-import { AjaxRes, getNowRouteName } from './util'
+
 
 /** 在路由系统启动后执行 */
 export const afterRouter = (router: Router) => {
@@ -15,32 +14,6 @@ export const afterRouter = (router: Router) => {
     }
     window.addEventListener('hashchange', handle)
     handle()
-    checkLogin(router)
+    
 }
 
-
-const checkLogin = (router: Router) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('GET', apiConfig.login)
-    xhr.send()
-    xhr.addEventListener('readystatechange', () => {
-        if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-            const data = JSON.parse(xhr.responseText) as AjaxRes
-            if (data.code == 200) handleHasLogin()
-            else handleNotLogin()
-        }
-    })
-}
-
-/** 已登录状态 */
-export const handleHasLogin = () => {
-    navLinks.login.classList.add('d-none')
-    navLinks.logout.classList.remove('d-none')
-    if (getNowRouteName() == 'login') location.hash = ''
-}
-
-/** 未登录状态 */
-export const handleNotLogin = () => {
-    navLinks.login.classList.remove('d-none')
-    navLinks.logout.classList.add('d-none')
-}

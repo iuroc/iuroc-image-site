@@ -189,7 +189,7 @@ class Router {
         }
     }
 
-    @GetMapping("/api/getStarList")
+    @GetMapping("/api/starList")
     public AjaxRes getStarList(HttpServletRequest request) throws SQLException {
         try (Connection connection = Database.getConnection()) {
             Cookie[] cookies = request.getCookies();
