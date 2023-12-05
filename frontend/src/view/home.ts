@@ -5,28 +5,26 @@ import { AjaxRes } from '../util'
 const { button, div, img } = van.tags
 const { svg, path } = van.tagsNS('http://www.w3.org/2000/svg')
 
-const bigImageSrc = van.state('')
-type Image = { src: string, hasStar: boolean, index: number }
-const imageSrcList = [] as State<string>[]
-const imageHasStarList = [] as State<boolean>[]
-const nowImageIndex = van.state(0)
-const nowImage = van.derive<Image>(() => {
-    return {
-        src: imageSrcList[nowImageIndex.val].val,
-        hasStar: imageHasStarList[nowImageIndex.val].val,
-        index: nowImageIndex.val
-    }
+const imageList = van.state([]) as State<Image[]>
+const bigImageSrc = van.derive(() => {
+    if (imageList.val.length == 0) return ''
+    return imageList.val[nowImageIndex.val].src.val
 })
-
-for (let i = 0; i < 6; i++) {
-    imageSrcList.push(van.state(''))
-    imageHasStarList.push(van.state(false))
+const btnHasStar = van.derive(() => {
+    if (imageList.val.length == 0) return false
+    return imageList.val[nowImageIndex.val].hasStar.val
+})
+const nowImageIndex = van.state(0)
+interface Image {
+    src: State<string>
+    hasStar: State<boolean>
+    index: number
 }
 
-const disabledImageList = van.state(false)
+const disabledimageList = van.state(false)
 export const Home = () => {
     bigImageSrc.val = 'image/1.jpg'
-    loadImageList(disabledImageList)
+    loadimageList(disabledimageList)
     loadOneWord()
     return div({ 'data-route': 'home' },
         div({ class: 'row position-relative' },
@@ -42,16 +40,17 @@ const RightPanel = () => {
             path({ "d": "M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z" }),
         )
     )
-    const SmallImage = (src: State<string>, hasStar: State<boolean>) => {
+    const SmallImage = (image: Image) => {
         return div({ class: 'mb-3 col-6 col-sm-4 col-lg-6' },
             div({ class: 'position-relative' },
                 img({
-                    class: 'w-100 rounded-3', role: 'button', src: src, onclick() {
-                        bigImageSrc.val = src.val
-                        btnHasStar.val = hasStar.val
+                    class: 'w-100 rounded-3', role: 'button', src: image.src, onclick() {
+                        // bigImageSrc.val = image.src.val
+                        // btnHasStar.val = image.hasStar.val
+                        nowImageIndex.val = image.index
                     }
                 }),
-                () => hasStar.val ? starIcon() : ''
+                () => image.hasStar.val ? starIcon() : ''
             )
         )
     }
@@ -61,9 +60,9 @@ const RightPanel = () => {
         div({ class: 'row mb-4' },
             div({ class: 'col col-md-6' },
                 button({
-                    class: 'btn btn-success w-100', disabled: disabledImageList, onclick() {
-                        disabledImageList.val = true
-                        loadImageList(disabledImageList)
+                    class: 'btn btn-success w-100', disabled: disabledimageList, onclick() {
+                        disabledimageList.val = true
+                        loadimageList(disabledimageList)
                         loadOneWord()
                     }
                 }, '再来一组')
@@ -75,8 +74,8 @@ const RightPanel = () => {
                 }, starBtnText),
             ),
         ),
-        div({ class: 'row' },
-            imageSrcList.map((src, index) => SmallImage(src, imageHasStarList[index]))
+        () => div({ class: 'row' },
+            imageList.val.map(image => SmallImage(image))
         ),
         div({ class: 'text-muted' }, oneWord)
     )
@@ -88,24 +87,34 @@ const ImageBox = (src: State<string>) => {
     })
 }
 
-const xhrForImageList = new XMLHttpRequest()
-const btnHasStar = van.state(false)
-const loadImageList = (disable: State<boolean>) => {
-    const xhr = xhrForImageList
+const xhrForimageList = new XMLHttpRequest()
+
+const loadimageList = (disable: State<boolean>) => {
+    const xhr = xhrForimageList
     xhr.abort()
     xhr.open('GET', apiConfig.randomImage)
     xhr.send()
     xhr.addEventListener('readystatechange', () => {
-
         if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-            const data = JSON.parse(xhr.responseText) as AjaxRes<{ main: Image, list: Image[] }>
+            interface AjaxImage {
+                src: string
+                hasStar: boolean
+            }
+            const data = JSON.parse(xhr.responseText) as AjaxRes<{ main: AjaxImage, list: AjaxImage[] }>
             bigImageSrc.val = data.data.main.src
             btnHasStar.val = data.data.main.hasStar
-            imageSrcList.forEach((src, index) => {
-                src.val = data.data.list[index].src
-                imageHasStarList[index].val = data.data.list[index].hasStar
-                nowImageIndex.val = index
+
+            const list = [] as Image[]
+            data.data.list.forEach((item, index) => {
+                const image: Image = {
+                    hasStar: van.state(item.hasStar),
+                    index,
+                    src: van.state(item.src)
+                }
+                list.push(image)
             })
+            imageList.val = list
+            nowImageIndex.val = 0
             disable.val = false
         }
     })
@@ -138,6 +147,7 @@ const clickAddStar = () => {
         if (xhr.readyState == xhr.DONE && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText) as AjaxRes<{ hasStar: boolean }>
             let { hasStar } = data.data
+            imageList.val[nowImageIndex.val].hasStar.val = hasStar
         }
     })
 }

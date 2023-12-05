@@ -9,11 +9,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -153,7 +151,7 @@ class Router {
             Map<String, Object> data = new HashMap<>();
             List<Map<String, Object>> imageList = new ArrayList<>();
             data.put("list", imageList);
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 6; i++) {
                 String src = RouterMixin.makeImageSrc(length);
                 boolean hasStar = hasLogin ? Database.isStarExists(connection, username, src) : false;
                 Map<String, Object> item = new HashMap<>();
