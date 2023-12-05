@@ -189,6 +189,19 @@ class Router {
         }
     }
 
+    @GetMapping("/api/getStarList")
+    public AjaxRes getStarList(HttpServletRequest request) throws SQLException {
+        try (Connection connection = Database.getConnection()) {
+            Cookie[] cookies = request.getCookies();
+            String token = Util.getCookieValue(cookies, "token");
+            if (Util.isAllEmpty(token) || !Database.checkToken(connection, token))
+                return new AjaxRes().setError("请登录后执行该操作");
+            String username = Database.getUsernameByToken(connection, token);
+            List<Star> starList = Database.getStarList(connection, username);
+            return new AjaxRes().setSuccess("获取成功").setData(starList);
+        }
+    }
+
     private String baseUrl = "https://pic.netbian.com";
 }
 

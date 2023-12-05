@@ -8,7 +8,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -193,5 +195,35 @@ class Database {
         pStatement.setString(1, username);
         pStatement.setString(2, imageSrc);
         pStatement.executeUpdate();
+    }
+
+    public static List<Star> getStarList(Connection connection, String username) throws SQLException {
+        PreparedStatement pStatement = connection
+                .prepareStatement("SELECT * FROM \"star\" WHERE \"username\" = ?");
+        pStatement.setString(1, username);
+        ResultSet resultSet = pStatement.executeQuery();
+        List<Star> starList = new ArrayList<>();
+        while (resultSet.next()) {
+            starList.add(new Star(
+                    resultSet.getInt("id"),
+                    resultSet.getString("username"),
+                    resultSet.getString("image_src"),
+                    resultSet.getString("create_time")));
+        }
+        return starList;
+    }
+}
+
+class Star {
+    public int id;
+    public String username;
+    public String imageSrc;
+    public String createTime;
+
+    public Star(int id, String username, String imageSrc, String createTime) {
+        this.id = id;
+        this.username = username;
+        this.imageSrc = imageSrc;
+        this.createTime = createTime;
     }
 }
