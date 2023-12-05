@@ -17,3 +17,7 @@ export const classWithHide = (state: State<boolean>, baseClass: string = '') => 
         class: () => `${baseClass}${state.val ? ' d-none' : ''}`
     }
 }
+
+export const getNowRouteName = () => {
+    return location.hash == '' ? 'home' : location.hash.split('/')[1]
+}

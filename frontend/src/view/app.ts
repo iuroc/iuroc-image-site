@@ -4,6 +4,7 @@ import { Home } from './home'
 import { Star } from './star'
 import { About } from './about'
 import { Login } from './loginV2'
+import { Router } from 'apee-router'
 
 const { div } = van.tags
 

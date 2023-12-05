@@ -1,12 +1,27 @@
 package com.iuroc.imageSite;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -88,6 +103,7 @@ class Router {
         }
     }
 
+    @Deprecated
     @GetMapping("/api/imageList")
     private AjaxRes imageList(HttpServletRequest request) {
         String path = Util.getStringParam(request, "path");
@@ -115,6 +131,7 @@ class Router {
                 .setData(data);
     }
 
+    @Deprecated
     @GetMapping("/api/imageInfo")
     private AjaxRes imageInfo(HttpServletRequest request) {
         String href = Util.getStringParam(request, "href");
@@ -127,10 +144,37 @@ class Router {
         return new AjaxRes().setSuccess("获取成功").setData(data);
     }
 
+    @GetMapping("/api/randomImage")
+    private AjaxRes randomImage() throws URISyntaxException {
+        int length = RouterMixin.getFileCount("image");
+        int num = Util.random(1, length);
+        String filename = String.format("/image/%d.jpg", num);
+        return new AjaxRes().setSuccess("Good").setData(filename);
+    }
+
+    @GetMapping("/image/{imageName:.+}")
+    public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws IOException {
+        Resource resource = new ClassPathResource("image/" + imageName);
+        if (resource.exists()) {
+            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     private String baseUrl = "https://pic.netbian.com";
 }
 
 class RouterMixin {
+    public static int getFileCount(String dirPath) throws URISyntaxException {
+        ClassLoader classLoader = RouterMixin.class.getClassLoader();
+        URL url = classLoader.getResource(dirPath);
+        URI uri = url.toURI();
+        String path = uri.getPath();
+        int length = new File(path).listFiles().length;
+        return length;
+    }
+
     /** 获取总页码 */
     public static int parseTotalPage(String source) {
         Pattern pattern = Pattern.compile("<div class=\"page\">(.*?)</div>", Pattern.DOTALL);

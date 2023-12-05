@@ -1,7 +1,7 @@
 import { Router } from 'apee-router'
 import { navLinks } from './view/navbar'
 import { apiConfig } from './config'
-import { AjaxRes } from './util'
+import { AjaxRes, getNowRouteName } from './util'
 
 /** 在路由系统启动后执行 */
 export const afterRouter = (router: Router) => {
@@ -26,17 +26,17 @@ const checkLogin = (router: Router) => {
     xhr.addEventListener('readystatechange', () => {
         if (xhr.readyState == xhr.DONE && xhr.status == 200) {
             const data = JSON.parse(xhr.responseText) as AjaxRes
-            if (data.code == 200) handleHasLogin(router)
+            if (data.code == 200) handleHasLogin()
             else handleNotLogin()
         }
     })
 }
 
 /** 已登录状态 */
-export const handleHasLogin = (router: Router) => {
+export const handleHasLogin = () => {
     navLinks.login.classList.add('d-none')
     navLinks.logout.classList.remove('d-none')
-    if (router.getNowRouteName() == 'login') location.hash = ''
+    if (getNowRouteName() == 'login') location.hash = ''
 }
 
 /** 未登录状态 */

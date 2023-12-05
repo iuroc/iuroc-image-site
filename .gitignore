@@ -3,3 +3,4 @@ node_modules/
 .vite/
 package-lock.json
 dist/
+backend/src/main/resources/image/

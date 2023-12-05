@@ -17,7 +17,7 @@ export type FormConfig = Record<string, FormConfigItem>
 
 export const MyInput = (config: FormConfigItem) => {
     const invalid = config.invalid as State<boolean>
-    const classValue = () => `form-control${invalid.val ? ' is-invalid' : ''}`
+    const classValue = () => `form-control${invalid.val ? '' : ' is-invalid'}`
     return div({ class: 'mb-3' },
         input({
             class: classValue,
