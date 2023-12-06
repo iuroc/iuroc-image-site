@@ -4,7 +4,7 @@ import { AjaxRes } from '../util'
 import { starIcon } from './star'
 import { RouteEvent } from 'apee-router'
 
-const { button, div, img } = van.tags
+const { button, div, img, span } = van.tags
 
 const imageList = van.state([]) as State<Image[]>
 const bigImageSrc = van.derive(() => {
@@ -22,25 +22,30 @@ interface Image {
     index: number
 }
 
-const disabledimageList = van.state(false)
+/** 是否将“再来一组”按钮设置为禁用 */
+const disabledImageList = van.state(false)
 
 export const home: RouteEvent = route => {
     if (route.status == 1) return
-    loadimageList(disabledimageList)
+    loadRandomImageList(disabledImageList)
     loadOneWord()
     return route.status = 1
 }
+
 export const Home = () => {
+    const listEle = div({ class: 'row' })
     return div({ 'data-route': 'home' },
-        div({ class: 'row position-relative' },
+        div({ class: 'row position-relative mb-4' },
             div({ class: 'col-lg-8 mb-4 mb-lg-0' }, ImageBox(bigImageSrc)),
             div({ class: 'col-lg-4' }, RightPanel()),
-        )
+        ),
+        listEle
     )
 }
 
-const RightPanel = () => {
 
+
+const RightPanel = () => {
     const SmallImage = (image: Image) => {
         return div({ class: 'mb-3 col-6 col-sm-4 col-lg-6' },
             div({ class: 'position-relative' },
@@ -53,30 +58,47 @@ const RightPanel = () => {
             )
         )
     }
-    const starBtnText = van.derive(() => btnHasStar.val ? '取消收藏' : '收藏图片')
-    const starBtnClass = van.derive(() => btnHasStar.val ? 'btn-outline-danger' : 'btn-warning')
     return div(
         div({ class: 'row mb-4' },
-            div({ class: 'col col-md-6' },
-                button({
-                    class: 'btn btn-success w-100', disabled: disabledimageList, onclick() {
-                        disabledimageList.val = true
-                        loadimageList(disabledimageList)
-                        loadOneWord()
-                    }
-                }, '再来一组')
-            ),
-            div({ class: 'col col-md-6' },
-                button({
-                    class: () => `btn w-100 ${starBtnClass.val}`,
-                    onclick: clickAddStar
-                }, starBtnText),
-            ),
+            ReloadList(),
+            AddStar(),
         ),
         () => div({ class: 'row' },
             imageList.val.map(image => SmallImage(image))
         ),
         div({ class: 'text-muted' }, oneWord)
+    )
+}
+
+/** 按钮：再来一组 */
+const ReloadList = () => {
+    const loading = () => disabledImageList.val ? span({ class: 'spinner-border spinner-border-sm me-1' }) : ''
+    const onclick = () => {
+        disabledImageList.val = true
+        loadRandomImageList(disabledImageList)
+        loadOneWord()
+    }
+    return div({ class: 'col col-md-6' },
+        button({
+            class: 'btn btn-success w-100', disabled: disabledImageList, onclick
+        }, loading, '再来一组')
+    )
+}
+
+/** 按钮：新增收藏 */
+const AddStar = () => {
+    const starBtnText = van.derive(() => btnHasStar.val ? '取消收藏' : '收藏图片')
+    const starBtnClass = van.derive(() => btnHasStar.val ? 'btn-outline-danger' : 'btn-warning')
+    const loading = van.state(false)
+    const spinner = van.derive(() => loading.val ? span({ class: 'spinner-border spinner-border-sm me-1' }) : '')
+    return div({ class: 'col col-md-6' },
+        button({
+            class: () => `btn w-100 ${starBtnClass.val}`,
+            onclick() {
+                clickAddStar(loading)
+            },
+            disabled: loading
+        }, () => spinner.val, starBtnText),
     )
 }
 
@@ -88,7 +110,7 @@ const ImageBox = (src: State<string>) => {
 
 const xhrForimageList = new XMLHttpRequest()
 
-const loadimageList = (disable: State<boolean>) => {
+const loadRandomImageList = (disable: State<boolean>) => {
     const xhr = xhrForimageList
     xhr.abort()
     xhr.open('GET', apiConfig.randomImage)
@@ -110,7 +132,9 @@ const loadimageList = (disable: State<boolean>) => {
                 }
             })
             nowImageIndex.val = 0
-            disable.val = false
+            setTimeout(() => {
+                disable.val = false
+            }, 500)
         }
     })
 }
@@ -129,7 +153,8 @@ const loadOneWord = () => {
 }
 
 const xhrAddStar = new XMLHttpRequest()
-const clickAddStar = () => {
+const clickAddStar = (loading: State<boolean>) => {
+    loading.val = true
     const xhr = xhrAddStar
     xhr.abort()
     xhr.open('POST', apiConfig.addStar)
@@ -140,10 +165,12 @@ const clickAddStar = () => {
     })())
     xhr.addEventListener('readystatechange', () => {
         if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-            const data = JSON.parse(xhr.responseText) as AjaxRes<{ hasStar: boolean }>
-            let { hasStar } = data.data
-            imageList.val[nowImageIndex.val].hasStar.val = hasStar
+            setTimeout(() => {
+                const data = JSON.parse(xhr.responseText) as AjaxRes<{ hasStar: boolean }>
+                let { hasStar } = data.data
+                imageList.val[nowImageIndex.val].hasStar.val = hasStar
+                loading.val = false
+            }, 500)
         }
     })
 }
-

@@ -2,7 +2,6 @@ import van, { State } from 'vanjs-core'
 import { apiConfig } from '../config'
 import { AjaxRes } from '../util'
 import { RouteEvent } from 'apee-router'
-import { userLogin } from './login'
 
 const { div, img } = van.tags
 const { svg, path } = van.tagsNS('http://www.w3.org/2000/svg')
@@ -30,7 +29,7 @@ export const Star = () => {
 }
 
 const ImageBox = (src: string) => {
-    return div({ class: 'col-lg-3 mb-4' },
+    return div({ class: 'col-xl-3 col-lg-4 col-6 mb-4' },
         div({ class: 'position-relative starRouteImage' },
             img({ src, class: 'w-100 rounded-4' }),
             starIcon()
