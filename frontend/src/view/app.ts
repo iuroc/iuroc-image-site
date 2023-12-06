@@ -4,6 +4,8 @@ import { Home } from './home'
 import { Star } from './star'
 import { About } from './about'
 import { Login } from './login'
+import { ImageView } from './modal'
+import { Modal } from 'bootstrap'
 
 const { div } = van.tags
 
@@ -15,6 +17,11 @@ export const App = () => {
             Star(),
             About(),
             Login()
-        )
+        ),
+        imageView
     )
 }
+
+export const imageViewSrc = van.state('')
+const imageView = ImageView(imageViewSrc)
+export const imageViewModal = new Modal(imageView)

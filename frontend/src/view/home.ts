@@ -3,6 +3,7 @@ import { apiConfig } from '../config'
 import { AjaxRes } from '../util'
 import { starIcon } from './star'
 import { RouteEvent } from 'apee-router'
+import { imageViewModal, imageViewSrc } from './app'
 
 const { button, div, img, span } = van.tags
 
@@ -24,49 +25,113 @@ interface Image {
 
 /** 是否将“再来一组”按钮设置为禁用 */
 const disabledImageList = van.state(false)
-
+const listEle = div({ class: 'row' })
+const loadMoreShow = van.state(false)
 export const home: RouteEvent = route => {
     if (route.status == 1) return
     loadRandomImageList(disabledImageList)
     loadOneWord()
+    loadImageList(listEle)
     return route.status = 1
 }
 
+const ListImageBox = (src: string) => {
+    return div({ class: 'col-xl-3 col-lg-4 col-6 mb-4' },
+        div({ class: 'ratio ratio-16x9', onclick() {
+            imageViewSrc.val = src
+            imageViewModal.show()
+        } },
+            img({ src, class: 'w-100 h-100 rounded-4', role: 'button' })
+        ),
+    )
+}
+
 export const Home = () => {
-    const listEle = div({ class: 'row' })
     return div({ 'data-route': 'home' },
         div({ class: 'row position-relative mb-4' },
             div({ class: 'col-lg-8 mb-4 mb-lg-0' }, ImageBox(bigImageSrc)),
             div({ class: 'col-lg-4' }, RightPanel()),
         ),
-        listEle
+        listEle,
+        LoadMoreBtn()
     )
 }
 
+const LoadMoreBtn = () => {
+    const loading = van.state(false)
+    const spinner = van.derive(() => loading.val ? span({ class: 'spinner-border spinner-border-sm me-1' }) : '')
+    return div({ class: 'text-center' },
+        button({
+            class: () => `btn btn-success ${loadMoreShow.val ? '' : 'd-none'}`,
+            onclick() { loadImageList(listEle, loading) },
+            disabled: loading
+        }, () => spinner.val, '加载更多')
+    )
+}
 
+const loadImageList = (listEle: HTMLDivElement, loading?: State<boolean>) => {
+    if (loading) loading.val = true
+    getImageList(36).then(data => {
+        const handle = () => {
+            const { list } = data
+            list.forEach(item => {
+                van.add(listEle, ListImageBox(item.src))
+            })
+            loadMoreShow.val = true
+        }
+        if (loading) {
+            setTimeout(() => {
+                handle()
+                loading.val = false
+                loadMoreShow.val = true
+            }, 500)
+        } else handle()
+    })
+}
+
+const getImageList = (count: number = 6) => {
+    interface AjaxImage {
+        src: string
+        hasStar: boolean
+    }
+    type AjaxData = { main: AjaxImage, list: AjaxImage[] }
+    return new Promise<AjaxData>(resolve => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('GET', apiConfig.randomImage + '?count=' + count)
+        xhr.send()
+        xhr.addEventListener('readystatechange', () => {
+            if (xhr.readyState == xhr.DONE && xhr.status == 200) {
+                const data = JSON.parse(xhr.responseText) as AjaxRes<AjaxData>
+                resolve(data.data)
+            }
+        })
+    })
+}
 
 const RightPanel = () => {
     const SmallImage = (image: Image) => {
-        return div({ class: 'mb-3 col-6 col-sm-4 col-lg-6' },
+        return div({ class: 'mb-3 mb-xxl-4 col-6 col-sm-4 col-lg-6' },
             div({ class: 'position-relative' },
-                img({
-                    class: 'w-100 rounded-3', role: 'button', src: image.src, onclick() {
-                        nowImageIndex.val = image.index
-                    }
-                }),
+                div({ class: 'ratio ratio-16x9' },
+                    img({
+                        class: 'w-100 h-100 rounded-3', role: 'button', src: image.src, onclick() {
+                            nowImageIndex.val = image.index
+                        }
+                    }),
+                ),
                 () => image.hasStar.val ? starIcon() : ''
             )
         )
     }
     return div(
-        div({ class: 'row mb-4' },
+        div({ class: 'row mb-3 mb-xxl-4' },
             ReloadList(),
             AddStar(),
         ),
         () => div({ class: 'row' },
             imageList.val.map(image => SmallImage(image))
         ),
-        div({ class: 'text-muted' }, oneWord)
+        div({ class: 'text-muted text-truncate' }, oneWord)
     )
 }
 
@@ -103,39 +168,25 @@ const AddStar = () => {
 }
 
 const ImageBox = (src: State<string>) => {
-    return img({
-        class: 'w-100 rounded-4', src
-    })
+    return img({ class: 'w-100 rounded-4', src })
 }
 
-const xhrForimageList = new XMLHttpRequest()
 
 const loadRandomImageList = (disable: State<boolean>) => {
-    const xhr = xhrForimageList
-    xhr.abort()
-    xhr.open('GET', apiConfig.randomImage)
-    xhr.send()
-    xhr.addEventListener('readystatechange', () => {
-        if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-            interface AjaxImage {
-                src: string
-                hasStar: boolean
+    getImageList(6).then(data => {
+        bigImageSrc.val = data.main.src
+        btnHasStar.val = data.main.hasStar
+        imageList.val = data.list.map((item, index) => {
+            return {
+                hasStar: van.state(item.hasStar),
+                index,
+                src: van.state(item.src)
             }
-            const data = JSON.parse(xhr.responseText) as AjaxRes<{ main: AjaxImage, list: AjaxImage[] }>
-            bigImageSrc.val = data.data.main.src
-            btnHasStar.val = data.data.main.hasStar
-            imageList.val = data.data.list.map((item, index) => {
-                return {
-                    hasStar: van.state(item.hasStar),
-                    index,
-                    src: van.state(item.src)
-                }
-            })
-            nowImageIndex.val = 0
-            setTimeout(() => {
-                disable.val = false
-            }, 500)
-        }
+        })
+        nowImageIndex.val = 0
+        setTimeout(() => {
+            disable.val = false
+        }, 500)
     })
 }
 const xhrForOneWord = new XMLHttpRequest()

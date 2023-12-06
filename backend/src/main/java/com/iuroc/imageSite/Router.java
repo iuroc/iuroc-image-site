@@ -144,6 +144,7 @@ class Router {
         try (Connection connection = Database.getConnection()) {
             Cookie[] cookies = request.getCookies();
             String token = Util.getCookieValue(cookies, "token");
+            int count = Util.getIntParam(request, "count", 6);
             boolean hasLogin = Util.isAllEmpty(token) || !Database.checkToken(connection, token);
             String username = hasLogin ? Database.getUsernameByToken(connection, token) : null;
 
@@ -151,7 +152,7 @@ class Router {
             Map<String, Object> data = new HashMap<>();
             List<Map<String, Object>> imageList = new ArrayList<>();
             data.put("list", imageList);
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < count; i++) {
                 String src = RouterMixin.makeImageSrc(length);
                 boolean hasStar = hasLogin ? Database.isStarExists(connection, username, src) : false;
                 Map<String, Object> item = new HashMap<>();
