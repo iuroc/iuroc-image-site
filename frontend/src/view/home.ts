@@ -3,9 +3,22 @@ import { apiConfig } from '../config'
 import { AjaxRes } from '../util'
 import { starIcon } from './star'
 import { RouteEvent } from 'apee-router'
-import { imageViewModal, imageViewSrc } from './app'
+import { imageViewData, imageViewModal } from './app'
 
 const { button, div, img, span } = van.tags
+
+
+export const Home = () => {
+    return div({ 'data-route': 'home' },
+        div({ class: 'row position-relative mb-4' },
+            div({ class: 'col-lg-8 mb-4 mb-lg-0' }, ImageBox(bigImageSrc)),
+            div({ class: 'col-lg-4' }, RightPanel()),
+        ),
+        listEle,
+        LoadMoreBtn()
+    )
+}
+
 
 const imageList = van.state([]) as State<Image[]>
 const bigImageSrc = van.derive(() => {
@@ -17,11 +30,13 @@ const btnHasStar = van.derive(() => {
     return imageList.val[nowImageIndex.val].hasStar.val
 })
 const nowImageIndex = van.state(0)
+
 interface Image {
     src: State<string>
     hasStar: State<boolean>
     index: number
 }
+
 
 /** 是否将“再来一组”按钮设置为禁用 */
 const disabledImageList = van.state(false)
@@ -35,28 +50,23 @@ export const home: RouteEvent = route => {
     return route.status = 1
 }
 
-const ListImageBox = (src: string) => {
+/** 组件：主页图片列表单体 */
+const ListImageBox = (image: AjaxImage) => {
     return div({ class: 'col-xl-3 col-lg-4 col-6 mb-4' },
-        div({ class: 'ratio ratio-16x9', onclick() {
-            imageViewSrc.val = src
-            imageViewModal.show()
-        } },
-            img({ src, class: 'w-100 h-100 rounded-4', role: 'button' })
+        div({
+            class: 'ratio ratio-16x9', onclick() {
+                // 弹出模态框
+                imageViewModal.show()
+                // 修改模态框通信数据
+                imageViewData.val = image
+            }
+        },
+            img({ src: image.src, class: 'w-100 h-100 rounded-4', role: 'button' })
         ),
     )
 }
 
-export const Home = () => {
-    return div({ 'data-route': 'home' },
-        div({ class: 'row position-relative mb-4' },
-            div({ class: 'col-lg-8 mb-4 mb-lg-0' }, ImageBox(bigImageSrc)),
-            div({ class: 'col-lg-4' }, RightPanel()),
-        ),
-        listEle,
-        LoadMoreBtn()
-    )
-}
-
+/** 按钮：加载更多 */
 const LoadMoreBtn = () => {
     const loading = van.state(false)
     const spinner = van.derive(() => loading.val ? span({ class: 'spinner-border spinner-border-sm me-1' }) : '')
@@ -75,7 +85,7 @@ const loadImageList = (listEle: HTMLDivElement, loading?: State<boolean>) => {
         const handle = () => {
             const { list } = data
             list.forEach(item => {
-                van.add(listEle, ListImageBox(item.src))
+                van.add(listEle, ListImageBox(item))
             })
             loadMoreShow.val = true
         }
@@ -88,12 +98,12 @@ const loadImageList = (listEle: HTMLDivElement, loading?: State<boolean>) => {
         } else handle()
     })
 }
-
+export interface AjaxImage {
+    src: string
+    hasStar: boolean
+}
 const getImageList = (count: number = 6) => {
-    interface AjaxImage {
-        src: string
-        hasStar: boolean
-    }
+
     type AjaxData = { main: AjaxImage, list: AjaxImage[] }
     return new Promise<AjaxData>(resolve => {
         const xhr = new XMLHttpRequest()
@@ -206,22 +216,29 @@ const loadOneWord = () => {
 const xhrAddStar = new XMLHttpRequest()
 const clickAddStar = (loading: State<boolean>) => {
     loading.val = true
-    const xhr = xhrAddStar
-    xhr.abort()
-    xhr.open('POST', apiConfig.addStar)
-    xhr.send((() => {
-        const params = new URLSearchParams()
-        params.set('imageSrc', bigImageSrc.val)
-        return params
-    })())
-    xhr.addEventListener('readystatechange', () => {
-        if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-            setTimeout(() => {
+    addStar(bigImageSrc.val).then(hasStar => {
+        setTimeout(() => {
+            imageList.val[nowImageIndex.val].hasStar.val = hasStar
+            loading.val = false
+        }, 200)
+    })
+}
+
+export const addStar = (src: string) => {
+    return new Promise<boolean>(resolve => {
+        const xhr = xhrAddStar
+        xhr.abort()
+        xhr.open('POST', apiConfig.addStar)
+        xhr.send((() => {
+            const params = new URLSearchParams()
+            params.set('imageSrc', src)
+            return params
+        })())
+        xhr.addEventListener('readystatechange', () => {
+            if (xhr.readyState == xhr.DONE && xhr.status == 200) {
                 const data = JSON.parse(xhr.responseText) as AjaxRes<{ hasStar: boolean }>
-                let { hasStar } = data.data
-                imageList.val[nowImageIndex.val].hasStar.val = hasStar
-                loading.val = false
-            }, 500)
-        }
+                resolve(data.data.hasStar)
+            }
+        })
     })
 }

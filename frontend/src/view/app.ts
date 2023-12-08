@@ -1,6 +1,6 @@
-import van from 'vanjs-core'
+import van, { State } from 'vanjs-core'
 import { Navbar } from './navbar'
-import { Home } from './home'
+import { AjaxImage, Home } from './home'
 import { Star } from './star'
 import { About } from './about'
 import { Login } from './login'
@@ -22,6 +22,6 @@ export const App = () => {
     )
 }
 
-export const imageViewSrc = van.state('')
-const imageView = ImageView(imageViewSrc)
+export const imageViewData: State<AjaxImage> = van.state({ hasStar: false, src: '' })
+const imageView = ImageView(imageViewData)
 export const imageViewModal = new Modal(imageView)
